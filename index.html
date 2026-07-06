@@ -16,6 +16,9 @@
                 background-color:red;
                 margin:0 auto;
                 display:none;
+                border-radius:20px;
+                box-shadow:0 0 20px red;
+                transition:0.1s;
             }
         </style>
     </head>
@@ -29,8 +32,23 @@
             var startTime=0;
             var endTime=0;
             var timerId;
+            var canPress=true;;
 
+            function resetGame(){
+                gameStarted=false;
+                isGreen=false;
+                startTime=0;
+                endTime=0;
+                clearTimeout(timerId);
+                document.getElementById("box").style.display="none";
+                document.getElementById("box").style.backgroundColor="red";
+                document.getElementById("box").style.boxShadow="0 0 20px red"
+            }
             window.addEventListener("keydown",function(event){
+                if(event.code!=="Space" || !canPress){
+                    return;
+                }
+                canPress=false;
                 if(event.code==="Space"){
                     if(gameStarted===false){
                         gameStarted=true;
@@ -42,17 +60,23 @@
                         endTime=Date.now();
                         var score=endTime-startTime;
                         document.getElementById("text").innerText="Your time: "+score+"ms! Press SPACE to try again.";
+                        resetGame();
                     }
                     else{
                         clearTimeout(timerId);
                         document.getElementById("text").innerText="Too early! Press SPACE to try again.";
+                        resetGame();
                         gameStarted=false;
                     }
                 }
+                setTimeout(function(){
+                    canPress=true;
+                },200);
             });
             function makeGreen(){
                 isGreen=true;
                 document.getElementById("box").style.backgroundColor="green";
+                document.getElementById("box").style.boxShadow="0 0 30px lime"
                 document.getElementById("box").style.display="block";
                 document.getElementById("text").innerText="PRESS SPACE NOW!";
                 startTime=Date.now();
