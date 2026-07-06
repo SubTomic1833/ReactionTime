@@ -6,7 +6,7 @@
             body{
                 font-family:"Courier New", Courier, monospace;
                 background-color:#ce4242;
-                color:black;
+                color:white;
                 transition:background-color 0.5s ease;
                 margin:0;
                 height:100vh;
@@ -24,6 +24,7 @@
                 font-size:28px;
                 max-width:700px;
                 line-height:1.5;
+                white-space:pre-line;
             }
         </style>
     </head>
@@ -40,8 +41,8 @@
             var round=0;
             var totalScore=0;
             var bestScore=9999;
-            var maxRound=5;
-
+            var maxRounds=5;
+            var gameActive=false;
             function resetGame(){
                 gameStarted=false;
                 isGreen=false;
@@ -57,20 +58,42 @@
                 if(event.code==="Space"){
                     if(gameStarted===false){
                         gameStarted=true;
-                        round=0;
-                        totalScore=0;
-                        bestScore=9999;
+                        if(gameActive===false){
+                            round=0;
+                            totalScore=0;
+                            bestScore=9999;
+                            gameActive=true;
+                        }
                         document.body.style.backgroundColor="#ce4242";
-                        document.getElementById("text").innerText="Wait for green...";
+                        document.getElementById("text").innerText="Round "+(round+1)+"/"+maxRounds+"\nWait for green...";
                         var randomDelay=Math.random()*3000+2000;
                         timerId=setTimeout(makeGreen, randomDelay);
                     }
                     else if(isGreen===true){
                         endTime=Date.now();
                         var score=endTime-startTime;
-                        document.body.style.backgroundColor="white";
-                        document.getElementById("text").innerText="Your time: "+score+"ms! Press SPACE to try again.";
-                        resetGame();
+                        round++;
+                        totalScore+= score;
+
+                        if(score < bestScore){
+                            bestScore=score;
+                        }
+                        document.body.style.backgroundColor="#363434";
+                        if(round>= maxRounds){
+                            var average=Math.round(totalScore/maxRounds);
+                            document.getElementById("text").innerText="FINAL SCORE\n\n"+"Average: "+average+"ms\n"+"Best: "+bestScore+"ms\n\n"+"Press SPACE to try again."
+                        }
+                        else{
+                            document.getElementById("text").innerText="Time: "+score+"ms\n\n"+"Round "+(round+1)+"/"+maxRounds+"\nPress SPACE for next round."
+                        }
+                        if(round>=maxRounds){
+                            resetGame();
+                            gameActive=false;
+                        }
+                        else{
+                            isGreen=false;
+                            gameStarted=false;
+                        }
                     }
                     else{
                         clearTimeout(timerId);
