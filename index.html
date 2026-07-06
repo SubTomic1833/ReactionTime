@@ -4,35 +4,43 @@
         <title>Reaction Time</title>
         <style>
             body{
-                font-family: Arial, sans-serif;
-                text-align:center;
-                background-color:white;
+                font-family:"Courier New", Courier, monospace;
+                background-color:#ce4242;
                 color:black;
-                padding-top:100px;
+                transition:background-color 0.5s ease;
+                margin:0;
+                height:100vh;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                text-align:center;
             }
-            #box{
-                width:300px;
-                height:300px;
-                background-color:red;
-                margin:0 auto;
-                display:none;
-                border-radius:20px;
-                box-shadow:0 0 20px red;
-                transition:0.1s;
+            h1{
+                font-size:56px;
+                margin-bottom:20px;
+            }
+            #text{
+                font-size:28px;
+                max-width:700px;
+                line-height:1.5;
             }
         </style>
     </head>
     <body>
         <h1>Reaction Time Test</h1>
         <p id="text">Press SPACE to start the game!</p>
-        <div id="box"></div>
         <script>
             var gameStarted=false;
             var isGreen=false;
             var startTime=0;
             var endTime=0;
             var timerId;
-            var canPress=true;;
+            var canPress=true;
+            var round=0;
+            var totalScore=0;
+            var bestScore=9999;
+            var maxRound=5;
 
             function resetGame(){
                 gameStarted=false;
@@ -40,9 +48,6 @@
                 startTime=0;
                 endTime=0;
                 clearTimeout(timerId);
-                document.getElementById("box").style.display="none";
-                document.getElementById("box").style.backgroundColor="red";
-                document.getElementById("box").style.boxShadow="0 0 20px red"
             }
             window.addEventListener("keydown",function(event){
                 if(event.code!=="Space" || !canPress){
@@ -52,6 +57,10 @@
                 if(event.code==="Space"){
                     if(gameStarted===false){
                         gameStarted=true;
+                        round=0;
+                        totalScore=0;
+                        bestScore=9999;
+                        document.body.style.backgroundColor="#ce4242";
                         document.getElementById("text").innerText="Wait for green...";
                         var randomDelay=Math.random()*3000+2000;
                         timerId=setTimeout(makeGreen, randomDelay);
@@ -59,6 +68,7 @@
                     else if(isGreen===true){
                         endTime=Date.now();
                         var score=endTime-startTime;
+                        document.body.style.backgroundColor="white";
                         document.getElementById("text").innerText="Your time: "+score+"ms! Press SPACE to try again.";
                         resetGame();
                     }
@@ -75,9 +85,7 @@
             });
             function makeGreen(){
                 isGreen=true;
-                document.getElementById("box").style.backgroundColor="green";
-                document.getElementById("box").style.boxShadow="0 0 30px lime"
-                document.getElementById("box").style.display="block";
+                document.body.style.backgroundColor="#2ed573";
                 document.getElementById("text").innerText="PRESS SPACE NOW!";
                 startTime=Date.now();
             }
