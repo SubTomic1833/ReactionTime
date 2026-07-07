@@ -31,6 +31,7 @@
     <body>
         <h1>Reaction Time Test</h1>
         <p id="text">Press SPACE to start the game!</p>
+        <canvas id="graph" width="700" height="350" style="display:none; background:white; border-radius:10px;"></canvas>
         <script>
             var gameStarted=false;
             var isGreen=false;
@@ -43,6 +44,7 @@
             var bestScore=9999;
             var maxRounds=5;
             var gameActive=false;
+            var reactionTimes=[];
             function resetGame(){
                 gameStarted=false;
                 isGreen=false;
@@ -63,8 +65,10 @@
                             totalScore=0;
                             bestScore=9999;
                             gameActive=true;
+                            reactionTimes=[];
                         }
                         document.body.style.backgroundColor="#ce4242";
+                        document.getElementById("graph").style.display="none";
                         document.getElementById("text").innerText="Round "+(round+1)+"/"+maxRounds+"\nWait for green...";
                         var randomDelay=Math.random()*3000+2000;
                         timerId=setTimeout(makeGreen, randomDelay);
@@ -74,6 +78,7 @@
                         var score=endTime-startTime;
                         round++;
                         totalScore+= score;
+                        reactionTimes.push(score);
 
                         if(score < bestScore){
                             bestScore=score;
@@ -81,7 +86,9 @@
                         document.body.style.backgroundColor="#363434";
                         if(round>= maxRounds){
                             var average=Math.round(totalScore/maxRounds);
-                            document.getElementById("text").innerText="FINAL SCORE\n\n"+"Average: "+average+"ms\n"+"Best: "+bestScore+"ms\n\n"+"Press SPACE to try again."
+                           document.getElementById("text").innerText="FINAL SCORE\n\n"+"Average: "+average+"ms\n"+"Best: "+bestScore+"ms\n\n"+"Press SPACE to try again."
+                           document.getElementById("graph").style.display="block";
+                           drawGraph();
                         }
                         else{
                             document.getElementById("text").innerText="Time: "+score+"ms\n\n"+"Round "+(round+1)+"/"+maxRounds+"\nPress SPACE for next round."
@@ -111,6 +118,60 @@
                 document.body.style.backgroundColor="#2ed573";
                 document.getElementById("text").innerText="PRESS SPACE NOW!";
                 startTime=Date.now();
+            }
+            function drawGraph(){
+                var canvas=document.getElementById("graph");
+                var ctx=canvas.getContext("2d");
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                var left=60;
+                var bottom=300;
+                var width=580;
+                var height=240;
+                ctx.strokeStyle="black";
+                ctx.lineWidth=2;
+                ctx.beginPath();
+                ctx.moveTo(left,40);
+                ctx.lineTo(left,bottom);
+                ctx.lineTo(left+width,bottom);
+                ctx.stroke();
+                var max=Math.max(...reactionTimes);
+                if(max<100){
+                    max=100;
+                }
+                ctx.strokeStyle="#2ed573";
+                ctx.lineWidth=3;
+                ctx.beginPath();
+                for(var i=0; i<reactionTimes.length;i++){
+                    var x=left+(i*(width/(maxRounds-1)));
+                    var y=bottom-(reactionTimes[i]/max)*height;
+                    if(i==0){
+                        ctx.moveTo(x,y);
+                    }else{
+                        ctx.lineTo(x,y);
+                    }
+                }
+                ctx.stroke();
+                ctx.fillStyle="#2ed573";
+                for(var i=0; i<reactionTimes.length; i++){
+                    var x=left+(i*(width/(maxRounds-1)));
+                    var y=bottom-(reactionTimes[i]/max)*height;
+                    ctx.beginPath();
+                    ctx.arc(x,y,5,0,Math.PI*2);
+                    ctx.fill();
+                    ctx.fillStyle="black";
+                    ctx.font="16px Courier New";
+                    ctx.fillText(i+1,x-5,bottom+25);
+                    ctx.fillText(reactionTimes[i],x-15,y-10);
+                    ctx.fillStyle="#2ed573";
+                }
+                ctx.fillStyle="black";
+                ctx.font="20px Courier New";
+                ctx.fillText("Round",320,340);
+                ctx.save();
+                ctx.translate(20,200);
+                ctx.rotate(-Math.PI/2);
+                ctx.fillText("Reaction Time (ms)",0,0);
+                ctx.restore();
             }
         </script>
     </body>
